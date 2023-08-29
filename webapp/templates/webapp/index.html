@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet"> 
+    <title>Data Generator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        button {
+            margin: 10px;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px; /* Increased border radius for rounder buttons */
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #generate-mongo, #query-mongo {
+            background-color: #589636; /* MongoDB's green color */
+        }
+        #generate-postgres, #query-postgres {
+            background-color: #336791; /* PostgreSQL's blue color */
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #message {
+            color: #757575;
+            text-align: center;
+        }
+        input {
+            margin: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 30px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            width: 220px;
+            text-align: center;
+        }
+        input:focus {
+            outline: none;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <script>
+        function generateData() {
+            var count = document.getElementById("postgres-input").value;
+            fetch(`api/generate/${count}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                document.getElementById('message').innerText = `Data generated successfully in PostgreSQL! It took ${data.message} seconds.`;
+            });
+        }
+
+        function queryData() {
+            fetch(`api/query/`, {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('message').innerText = `Data queried successfully from PostgreSQL! It took ${data.message} seconds.`;
+            });
+        }
+
+        function generateDataMongo() {
+            var count = document.getElementById("mongo-input").value;
+            fetch(`api/generate_mongo/${count}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                document.getElementById('message').innerText = `Data generated successfully in MongoDB! It took ${data.message} seconds.`;
+            });
+        }
+
+        function queryDataMongo() {
+            fetch(`api/query_mongo/`, {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('message').innerText = `Data queried successfully from MongoDB! It took ${data.message} seconds.`;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Data Generator</h1>
+    <div class="button-group">
+        <input id="mongo-input" type="number" placeholder="Enter amount for MongoDB" min="1">
+    </div>
+    <div class="button-group">
+        <button id="generate-mongo" onclick="generateDataMongo()">Generate Data in MongoDB</button>
+        <button id="query-mongo" onclick="queryData()">Query Data from MongoDB</button>
+    </div>
+    <div class="button-group">
+        <input id="postgres-input" type="number" placeholder="Enter amount for PostgreSQL" min="1">
+    </div>
+    <div class="button-group">
+        <button id="generate-postgres" onclick="generateData()">Generate Data in PostgreSQL</button>
+        <button id="query-postgres" onclick="queryData()">Query Data from PostgreSQL</button>
+    </div>
+    <p id="message"></p>
+    {% csrf_token %}
+</body>
+</html>
